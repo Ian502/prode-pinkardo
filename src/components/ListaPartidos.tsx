@@ -124,7 +124,7 @@ export default function ListaPartidos({ userId }: Props) {
         <button
           onClick={guardarTodosLosPronosticos}
           disabled={saving}
-          className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-extrabold px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 cursor-pointer transition-transform active:scale-95"
+          className="bg-indigo-600 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-extrabold px-6 py-3 rounded-full shadow-2xl flex items-center space-x-2 cursor-pointer transition-transform active:scale-95"
         >
           <Save size={20} />
           <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
@@ -152,7 +152,7 @@ export default function ListaPartidos({ userId }: Props) {
             >
               {/* Info de Fecha/Estado */}
               <div className="text-xs text-slate-400 flex items-center space-x-1.5 mb-3 md:mb-0">
-                <Calendar size={14} className="text-amber-500" />
+                <Calendar size={14} className="text-emerald-400" />
                 <span>
                   {new Date(partido.fecha_limite).toLocaleDateString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -185,7 +185,7 @@ export default function ListaPartidos({ userId }: Props) {
                     disabled={yaEmpezo}
                     value={pred.goles_a}
                     onChange={(e) => handleInputChange(partido.id, 'local', e.target.value)}
-                    className="w-10 h-10 bg-slate-800 border border-slate-700 rounded text-center text-lg font-bold text-white focus:outline-none focus:border-amber-500 disabled:opacity-50 disabled:bg-slate-950"
+                    className="w-10 h-10 bg-slate-800 border border-slate-700 rounded text-center text-lg font-bold text-white focus:outline-none focus:border-indigo-500 disabled:opacity-50 disabled:bg-slate-950"
                     placeholder="-"
                   />
                   <span className="text-slate-600 font-bold">x</span>
@@ -195,7 +195,7 @@ export default function ListaPartidos({ userId }: Props) {
                     disabled={yaEmpezo}
                     value={pred.goles_b}
                     onChange={(e) => handleInputChange(partido.id, 'visita', e.target.value)}
-                    className="w-10 h-10 bg-slate-800 border border-slate-700 rounded text-center text-lg font-bold text-white focus:outline-none focus:border-amber-500 disabled:opacity-50 disabled:bg-slate-950"
+                    className="w-10 h-10 bg-slate-800 border border-slate-700 rounded text-center text-lg font-bold text-white focus:outline-none focus:border-indigo-500 disabled:opacity-50 disabled:bg-slate-950"
                     placeholder="-"
                   />
                 </div>
@@ -217,7 +217,7 @@ export default function ListaPartidos({ userId }: Props) {
               {partido.goles_a !== null && (
                 <div className="mt-3 md:mt-0 text-center md:text-right md:w-24 border-t md:border-t-0 md:border-l border-slate-700 pt-2 md:pt-0">
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Real</p>
-                  <p className="text-sm font-black text-amber-400">
+                  <p className="text-sm font-black text-indigo-400">
                     {partido.goles_a} - {partido.goles_b}
                   </p>
                 </div>

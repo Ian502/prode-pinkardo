@@ -31,7 +31,7 @@ export default function Login() {
         
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-amber-500 p-3 rounded-full mb-3 text-slate-900">
+          <div className="bg-indigo-600 p-3 rounded-full mb-3 text-slate-900">
             <Trophy size={32} />
           </div>
           <h1 className="text-2xl font-bold text-white tracking-wide">PRODE MUNDIAL</h1>
@@ -49,7 +49,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-amber-500 transition-colors" 
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-indigo-500 transition-colors" 
                 placeholder="tu@email.com"
               />
             </div>
@@ -64,7 +64,7 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-amber-500 transition-colors" 
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-10 pr-4 text-white focus:outline-none focus:border-indigo-500 transition-colors" 
                 placeholder="••••••••"
               />
             </div>
@@ -79,7 +79,7 @@ export default function Login() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+            className="w-full bg-indigo-600 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
           >
             {loading ? 'Procesando...' : isRegistering ? 'Crear Cuenta' : 'Ingresar'}
           </button>
@@ -89,7 +89,7 @@ export default function Login() {
         <div className="mt-6 text-center">
           <button 
             onClick={() => { setIsRegistering(!isRegistering); setMessage(''); }}
-            className="text-amber-400 hover:underline text-sm font-medium"
+            className="text-indigo-400 hover:underline text-sm font-medium"
           >
             {isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí'}
           </button>

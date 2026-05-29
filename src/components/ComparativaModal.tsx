@@ -103,7 +103,7 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
         
         <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-850 rounded-t-2xl">
           <div>
-            <h3 className="font-bold text-amber-500 text-lg">Comparando Pronósticos</h3>
+            <h3 className="font-bold text-emerald-400 text-lg">Comparando Pronósticos</h3>
             <p className="text-xs text-slate-400">Viendo las cartas de: <span className="text-slate-200 font-medium">{targetUserEmail.split('@')[0]}</span></p>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-750 text-slate-400 hover:text-slate-200 rounded-lg transition-colors cursor-pointer">
@@ -142,8 +142,8 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
                     </div>
 
                     <div className="text-center px-2 border-x border-slate-700">
-                      <span className="block text-[10px] text-amber-500 uppercase tracking-wider font-bold">Real</span>
-                      <span className="text-sm font-black text-amber-500">
+                      <span className="block text-[10px] text-emerald-400 uppercase tracking-wider font-bold">Real</span>
+                      <span className="text-sm font-black text-emerald-400">
                         {p.goles_real_local !== null ? `${p.goles_real_local} - ${p.goles_real_visita}` : '⏳'}
                       </span>
                     </div>

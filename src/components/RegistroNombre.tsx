@@ -42,7 +42,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
   return (
     <div className="max-w-md mx-auto mt-12 p-6 bg-slate-800 border border-slate-700 rounded-2xl shadow-xl">
       <div className="text-center mb-6">
-        <div className="inline-flex p-3 bg-amber-500/10 text-amber-500 rounded-full mb-3">
+        <div className="inline-flex p-3 bg-indigo-600/10 text-emerald-400 rounded-full mb-3">
           <UserCheck size={28} />
         </div>
         <h2 className="text-xl font-bold text-slate-100">¡Configura tu apodo!</h2>
@@ -57,7 +57,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
             placeholder="Ej: El_Diez_2026"
             value={username}
             onChange={(e) => setUsername(e.target.value.replace(/\s+/g, '_'))} // Reemplaza espacios por guiones bajos
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
             maxLength={15}
           />
         </div>
@@ -67,7 +67,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-amber-500 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm hover:bg-amber-400 transition-colors disabled:opacity-50 cursor-pointer"
+          className="w-full bg-indigo-600 text-slate-950 font-bold py-3 px-4 rounded-xl text-sm hover:bg-amber-400 transition-colors disabled:opacity-50 cursor-pointer"
         >
           {loading ? 'Guardando...' : 'Comenzar a Jugar'}
         </button>

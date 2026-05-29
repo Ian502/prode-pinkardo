@@ -63,7 +63,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-900 text-slate-100">
       {/* Navbar */}
       <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2 text-amber-500 font-bold text-lg">
+        <div className="flex items-center space-x-2 text-emerald-400 font-bold text-lg">
           <LayoutDashboard size={20} />
           <span>Prode Pinkardo</span>
         </div>
@@ -85,7 +85,7 @@ export default function App() {
           onClick={() => setTabActiva('partidos')}
           className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl font-medium text-sm transition-colors cursor-pointer ${
             tabActiva === 'partidos' 
-              ? 'bg-amber-500 text-slate-950 font-bold' 
+              ? 'bg-indigo-600 text-slate-950 font-bold' 
               : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
           }`}
         >
@@ -96,7 +96,7 @@ export default function App() {
           onClick={() => setTabActiva('posiciones')}
           className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl font-medium text-sm transition-colors cursor-pointer ${
             tabActiva === 'posiciones' 
-              ? 'bg-amber-500 text-slate-950 font-bold' 
+              ? 'bg-indigo-600 text-slate-950 font-bold' 
               : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
           }`}
         >
