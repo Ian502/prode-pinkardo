@@ -84,7 +84,7 @@ export default function ListaPartidos({ userId }: Props) {
         .filter((p) => p.goles_a !== '' && p.goles_b !== '')
         .map((p) => ({
           user_id: userId,
-          partido_id: p.partido_id,
+          partido_id: Number(p.partido_id),
           goles_a: Number(p.goles_a),
           goles_b: Number(p.goles_b),
         }));
