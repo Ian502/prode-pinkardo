@@ -1,5 +1,5 @@
 export interface Equipo {
-  id: int;
+  id: number;
   idc: string;
   nombre: string;
   grupo: string;

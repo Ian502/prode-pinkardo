@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import Login from './pages/Login';
+import Login from './pages/login';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 import ListaPartidos from './components/ListaPartidos';
 
