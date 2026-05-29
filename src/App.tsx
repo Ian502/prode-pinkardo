@@ -10,53 +10,99 @@ import { LogOut, LayoutDashboard, Calendar, Trophy } from 'lucide-react';
 
 export default function App() {
   const [sessionUser, setSessionUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [tabActiva, setTabActiva] = useState<'partidos' | 'posiciones'>('partidos'); // Estado del Tab
   const [miApodo, setMiApodo] = useState<string | null>(null);
   const [verificandoNombre, setVerificandoNombre] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setSessionUser(user);
+// 2. Tu useEffect principal debe controlar la sesión y el apodo de forma secuencial:
+useEffect(() => {
+  const inicializarApp = async () => {
+    try {
+      // Obtener sesión actual de Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setSessionUser(session.user);
+        
+        // Ir a buscar el apodo inmediatamente si hay usuario logueado
+        const { data, error } = await supabase
+          .from('prode')
+          .select('username')
+          .eq('user_id', session.user.id)
+          .not('username', 'is', null)
+          .maybeSingle(); // Evita errores si devuelve vacío o múltiples registros
+
+        if (data && data.username) {
+          setMiApodo(data.username);
+        }
+      }
+    } catch (err) {
+      console.error("Error al inicializar la sesión o el perfil:", err);
+    } finally {
+      // Apagamos los loaders en orden
       setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSessionUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) return <div className="min-h-screen bg-slate-900 flex justify-center items-center text-white">Cargando...</div>;
-  if (!sessionUser) return <Login />;
-  
-  useEffect(() => {
-  const verificarNombreExistente = async () => {
-    if (!sessionUser) return;
-    
-    // Verificamos si este usuario ya guardó algún nombre en la tabla
-    const { data } = await supabase
-      .from('predicciones')
-      .select('username')
-      .eq('user_id', sessionUser.id)
-      .not('username', 'is', null)
-      .limit(1);
-
-    if (data && data.length > 0) {
-      setMiApodo(data[0].username);
+      setVerificandoNombre(false);
     }
-    setVerificandoNombre(false);
   };
 
-  verificarNombreExistente();
-  }, [sessionUser]);
-  
-  if (verificandoNombre) return <div className="text-center mt-20 text-slate-400">Cargando perfil...</div>;
-  
-  if (!miApodo) {
-  return <RegistroNombre userId={sessionUser.id} onNombreGuardado={(nombre) => setMiApodo(nombre)} />;
-  }
+  inicializarApp();
+
+  // Escuchar cambios de estado de autenticación (Login/Logout)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (session?.user) {
+      setSessionUser(session.user);
+      // Si el usuario cambia o se loguea, buscamos su nombre
+      const { data } = await supabase
+        .from('predicciones')
+        .select('username')
+        .eq('user_id', session.user.id)
+        .not('username', 'is', null)
+        .maybeSingle();
+      
+      if (data && data.username) {
+        setMiApodo(data.username);
+      }
+    } else {
+      setSessionUser(null);
+      setMiApodo(null);
+    }
+    setLoading(false);
+    setVerificandoNombre(false);
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
+
+// ==========================================
+// 3. SECCIÓN DE GUARDAS (Evitan la pantalla blanca)
+// ==========================================
+
+// GESTIÓN DE CARGA: Si Supabase no respondió sobre la sesión, esperamos.
+if (loading || verificandoNombre) {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 font-medium text-sm animate-pulse">
+      Iniciando entorno seguro...
+    </div>
+  );
+}
+
+// SI NO HAY USUARIO: Renderiza tu pantalla de Login/Registro habitual
+if (!sessionUser) {
+  return <Login/>; // 👈 Reemplázalo por el nombre de tu componente de Login
+}
+
+// SI HAY USUARIO PERO NO TIENE APODO: Forzar el formulario de registro de nombre
+if (!miApodo) {
+  return (
+    <div className="min-h-screen bg-slate-950 p-4">
+      <RegistroNombre 
+        userId={sessionUser.id} 
+        onNombreGuardado={(nombre) => setMiApodo(nombre)} 
+      />
+    </div>
+  );
+}
  
 
   // Si está logueado, mostrar el Dashboard del Prode
