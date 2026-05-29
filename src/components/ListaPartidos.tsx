@@ -26,9 +26,9 @@ export default function ListaPartidos({ userId }: Props) {
       const { data: partidosData, error: errorPartidos } = await supabase
         .from('partidos')
         .select(`
-          id, fase, equipo_local_id, equipo_visita_id, goles_a, goles_b, fecha_limite,
-          equipo_a:equipo_local_id (id, nombre, bandera_url, grupo),
-          equipo_b:equipo_visita_id (id, nombre, bandera_url, grupo)
+          id, fase, equipo_a, equipo_b, goles_a, goles_b, fecha_limite,
+          equipos_a:equipo_b (idc, nombre, bandera_url, grupo),
+          equipos_b:equipo_a (idc, nombre, bandera_url, grupo)
         `)
         .order('fecha_limite', { ascending: true });
 
@@ -169,12 +169,12 @@ export default function ListaPartidos({ userId }: Props) {
                 {/* Equipo Local */}
                 <div className="flex items-center space-x-2 justify-end w-1/3">
                   <span className="text-sm font-semibold text-white text-right hidden sm:inline">
-                    {partido.equipo_a?.nombre}
+                    {partido.equipos_a?.nombre}
                   </span>
                   <span className="text-sm font-semibold text-white sm:hidden">
-                    {partido.equipo_a?.nombre.substring(0, 3).toUpperCase()}
+                    {partido.equipos_a?.nombre.substring(0, 3).toUpperCase()}
                   </span>
-                  <img src={partido.equipo_a?.bandera_url} alt="Local" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                  <img src={partido.equipos_a?.bandera_url} alt="Local" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
                 </div>
 
                 {/* Inputs de Goles */}
@@ -202,12 +202,12 @@ export default function ListaPartidos({ userId }: Props) {
 
                 {/* Equipo Visitante */}
                 <div className="flex items-center space-x-2 justify-start w-1/3">
-                  <img src={partido.equipo_b?.bandera_url} alt="Visita" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                  <img src={partido.equipos_b?.bandera_url} alt="Visita" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
                   <span className="text-sm font-semibold text-white hidden sm:inline">
-                    {partido.equipo_b?.nombre}
+                    {partido.equipos_b?.nombre}
                   </span>
                   <span className="text-sm font-semibold text-white sm:hidden">
-                    {partido.equipo_b?.nombre.substring(0, 3).toUpperCase()}
+                    {partido.equipos_b?.nombre.substring(0, 3).toUpperCase()}
                   </span>
                 </div>
 
