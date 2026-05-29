@@ -8,8 +8,8 @@ export interface Equipo {
 export interface Partido {
   id: string;
   fase: string;
-  equipo_local_id: string;
-  equipo_visita_id: string;
+  equipo_a: string;
+  equipo_b: string;
   goles_a: number | null;
   goles_b: number | null;
   fecha_limite: string;
@@ -20,6 +20,6 @@ export interface Partido {
 
 export interface Prediccion {
   partido_id: string;
-  prediccion_a: number | string;
-  prediccion_b: number | string;
+  goles_a: number | string;
+  goles_b: number | string;
 }
