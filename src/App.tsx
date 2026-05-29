@@ -56,6 +56,7 @@ export default function App() {
   
   if (!miApodo) {
   return <RegistroNombre userId={sessionUser.id} onNombreGuardado={(nombre) => setMiApodo(nombre)} />;
+  }
  
 
   // Si está logueado, mostrar el Dashboard del Prode
