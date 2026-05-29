@@ -35,7 +35,7 @@ export default function App() {
       <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-2 text-amber-500 font-bold text-lg">
           <LayoutDashboard size={20} />
-          <span>Prode Mundial</span>
+          <span>Prode Pinkardo</span>
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-slate-400 text-sm hidden sm:inline">{sessionUser.email}</span>
@@ -78,10 +78,10 @@ export default function App() {
       {/* Contenido Principal Dinámico */}
       <main className="max-w-4xl mx-auto p-4 sm:p-6 mt-2">
         {tabActiva === 'partidos' ? (
-          <ListaPartidos userId={sessionUser.id} />
-        ) : (
-          <Leaderboard />
-        )}
+		  <ListaPartidos userId={sessionUser.id} />
+		) : (
+		  <Leaderboard currentUserId={sessionUser.id} />
+		)}
       </main>
     </div>
   );
