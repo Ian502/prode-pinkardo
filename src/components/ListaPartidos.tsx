@@ -141,7 +141,7 @@ export default function ListaPartidos({ userId }: Props) {
       <div className="space-y-4">
         {partidos.map((partido) => {
           const yaEmpezo = new Date() > new Date(partido.fecha_limite);
-          const pred = prode[partido.id] || { goles_a: '', goles_b: '' };
+          const pred = Prode[partido.id] || { goles_a: '', goles_b: '' };
 
           return (
             <div 
