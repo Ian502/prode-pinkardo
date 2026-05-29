@@ -2,21 +2,22 @@ import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import Login from './pages/login';
-import { LogOut, LayoutDashboard } from 'lucide-react';
+import Leaderboard from './components/Leaderboard'; // Nuevo Import
 import ListaPartidos from './components/ListaPartidos';
+import { LogOut, LayoutDashboard, Calendar, Trophy } from 'lucide-react';
+
 
 export default function App() {
   const [sessionUser, setSessionUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tabActiva, setTabActiva] = useState<'partidos' | 'posiciones'>('partidos'); // Estado del Tab
 
   useEffect(() => {
-    // 1. Revisar sesión actual al cargar
     supabase.auth.getUser().then(({ data: { user } }) => {
       setSessionUser(user);
       setLoading(false);
     });
 
-    // 2. Escuchar cambios en el estado de autenticación (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSessionUser(session?.user ?? null);
     });
@@ -24,18 +25,8 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex justify-center items-center text-white">
-        Cargando prode...
-      </div>
-    );
-  }
-
-  // Si no está logueado, forzar pantalla de Login
-  if (!sessionUser) {
-    return <Login />;
-  }
+  if (loading) return <div className="min-h-screen bg-slate-900 flex justify-center items-center text-white">Cargando...</div>;
+  if (!sessionUser) return <Login />;
 
   // Si está logueado, mostrar el Dashboard del Prode
   return (
