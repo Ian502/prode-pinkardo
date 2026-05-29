@@ -25,7 +25,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
     try {
       // Guardamos o actualizamos el username en la base de datos
       const { error: dbError } = await supabase
-        .from('predicciones')
+        .from('prode')
         .upsert({ user_id: userId, username: username.trim() }, { onConflict: 'user_id' });
 
       if (dbError) throw dbError;
