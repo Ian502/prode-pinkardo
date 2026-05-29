@@ -32,9 +32,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
         // 2. Traer todas las predicciones cargadas en el sistema
         const { data: predicciones } = await supabase.from('prode').select('*');
         // 3. Traer la lista de perfiles de usuarios (o deducirlos de las predicciones si usas auth puro)
-        //const { data: profiles } = await supabase.from('prode').select('user_id'); 
+        const { data: profiles } = await supabase.from('perfiles').select('*')
 
-        if (!partidos || !predicciones) {
+        if (!partidos || !perfiles) {
+          setUsers([]);
           setLoading(false);
           return;
         }
@@ -48,18 +49,16 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
           let exactos = 0;
           let resultados = 0;
 
-          const misPreds = predicciones.filter(p => p.user_id === uid);
+          // Filtramos las predicciones que pertenecen a este perfil en particular
+          const misPreds = predicciones ? predicciones.filter(p => p.user_id === perfil.id) : [];
 		  
-		  const prediccionConNombre = misPreds.find(p => p.username !== null && p.username !== '');
-		  const apodoReal = prediccionConNombre ? prediccionConNombre.username : "Un Pibe";
-
-          misPreds.forEach(p => {
+		  misPreds.forEach(p => {
             const partido = partidos.find(part => part.id === p.partido_id);
             if (partido && partido.goles_a !== null && partido.goles_b !== null) {
               const realL = partido.goles_a;
               const realV = partido.goles_b;
-              const predL = p.goles_a;
-              const predV = p.goles_b;
+              const predL = p.prediccion_a;
+              const predV = p.prediccion_b;
 
               // REGLA: Acierto Exacto (Pleno) -> 3 puntos
               if (realL === predL && realV === predV) {
@@ -77,7 +76,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
           // Buscamos una referencia de mail ficticia o placeholder si usas auth puro desde cliente
           return {
             user_id: uid,
-            email: apodoReal, // Puedes cambiarlo por el email real si tienes tabla de perfiles
+            email: perfil.username, // Puedes cambiarlo por el email real si tienes tabla de perfiles
             puntos,
             aciertos_exactos: exactos,
             aciertos_resultado: resultados
@@ -99,56 +98,73 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
   }, []);
 
   const abrirComparador = (id: string, email: string) => {
-    if (id === currentUserId) return; // No te puedes comparar contigo mismo
+    if (id === currentUserId) return;
     setSelectedUserId(id);
     setSelectedUserEmail(email);
     setModalOpen(true);
   };
 
-  if (loading) return <div className="text-center p-8 text-slate-400">Calculando la tabla general...</div>;
+  const renderMedallaOPosicion = (index: number) => {
+    if (index === 0) return <Medal className="text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.4)]" size={22} />; 
+    if (index === 1) return <Medal className="text-cyan-400 drop-shadow-[0_0_4px_rgba(34,211,238,0.3)]" size={22} />;    
+    if (index === 2) return <Medal className="text-indigo-400" size={22} />;                                         
+    return <span className="w-6 font-bold text-slate-500 text-center text-sm">{index + 1}</span>;
+  };
+
+  if (loading) return <div className="text-center p-8 text-slate-400 animate-pulse">Calculando la tabla general...</div>;
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden max-w-2xl mx-auto">
-      <div className="p-4 bg-slate-750 border-b border-slate-700 flex items-center space-x-2">
-        <Trophy className="text-emerald-400" size={20} />
-        <h2 className="font-bold text-slate-100">Tabla de Posiciones</h2>
+    <div className="bg-slate-900/80 border border-slate-700/60 rounded-2xl shadow-xl overflow-hidden max-w-2xl mx-auto backdrop-blur-md">
+      <div className="p-4 bg-slate-800/50 border-b border-slate-700/60 flex items-center space-x-2">
+        <Trophy className="text-indigo-400" size={22} />
+        <h2 className="font-bold text-slate-100 text-base">Tabla de Posiciones</h2>
       </div>
 
-      <div className="divide-y divide-slate-700/50">
-        {users.map((u, index) => {
-          const esMiUsuario = u.user_id === currentUserId;
-          return (
-            <div
-              key={u.user_id}
-              onClick={() => abrirComparador(u.user_id, u.email)}
-              className={`p-4 flex items-center justify-between transition-colors ${
-                esMiUsuario ? 'bg-slate-700/30' : 'hover:bg-slate-750 cursor-pointer'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <span className="w-6 font-bold text-slate-400 text-center">{index + 1}</span>
-                <span className={`font-medium ${esMiUsuario ? 'text-indigo-400 font-bold' : 'text-slate-200'}`}>
-                  {u.email.split('@')[0]} {esMiUsuario && '(Tú)'}
-                </span>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="text-right text-xs text-slate-400 hidden sm:block">
-                  <span>Plenos: {u.aciertos_exactos} | Int: {u.aciertos_resultado}</span>
+      <div className="divide-y divide-slate-800">
+        {users.length === 0 ? (
+          <div className="p-8 text-center text-sm text-slate-500">No hay perfiles registrados todavía.</div>
+        ) : (
+          users.map((u, index) => {
+            const esMiUsuario = u.user_id === currentUserId;
+            return (
+              <div
+                key={u.user_id}
+                onClick={() => abrirComparador(u.user_id, u.email)}
+                className={`p-4 flex items-center justify-between transition-all duration-200 ${
+                  esMiUsuario ? 'bg-indigo-500/10 border-l-4 border-indigo-500' : 'hover:bg-slate-800/40 cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-8 flex justify-center items-center">
+                    {renderMedallaOPosicion(index)}
+                  </div>
+                  {/* Se muestra el apodo directamente sin necesidad de usar split('@') */}
+                  <span className={`font-medium text-sm ${esMiUsuario ? 'text-indigo-300 font-bold' : 'text-slate-200'}`}>
+                    {u.email} {esMiUsuario && '(Tú)'}
+                  </span>
                 </div>
-                <div className="bg-slate-900/60 px-3 py-1 rounded-lg font-black text-emerald-400 border border-slate-700/50">
-                  {u.puntos} pts
+                
+                <div className="flex items-center space-x-4">
+                  <div className="text-right text-[11px] text-slate-400 hidden sm:block">
+                    <span>Plenos: {u.aciertos_exactos} | Int: {u.aciertos_resultado}</span>
+                  </div>
+                  <div className="bg-emerald-950/40 px-3 py-1 rounded-lg font-black text-sm text-emerald-400 border border-emerald-500/30">
+                    {u.puntos} pts
+                  </div>
+                  <div className="w-6 flex justify-center">
+                    {!esMiUsuario ? (
+                      <Eye size={18} className="text-slate-500 hover:text-emerald-400 transition-colors" />
+                    ) : (
+                      <div className="w-4.5" />
+                    )}
+                  </div>
                 </div>
-                {!esMiUsuario && (
-                  <Eye size={16} className="text-slate-500 hover:text-emerald-400 transition-colors" />
-                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
-      {/* RENDERIZADO DEL MODAL */}
       <ComparativaModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

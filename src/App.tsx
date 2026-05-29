@@ -27,11 +27,10 @@ useEffect(() => {
         
         // Ir a buscar el apodo inmediatamente si hay usuario logueado
         const { data } = await supabase
-          .from('prode')
+          .from('perfiles')
           .select('username')
-          .eq('user_id', session.user.id)
-          .not('username', 'is', null)
-          .maybeSingle(); // Evita errores si devuelve vacío o múltiples registros
+          .eq('id', session.user.id)
+          .maybeSingle();
 
         if (data && data.username) {
           setMiApodo(data.username);
@@ -54,10 +53,9 @@ useEffect(() => {
       setSessionUser(session.user);
       // Si el usuario cambia o se loguea, buscamos su nombre
       const { data } = await supabase
-        .from('predicciones')
+        .from('perfiles')
         .select('username')
-        .eq('user_id', session.user.id)
-        .not('username', 'is', null)
+        .eq('id', session.user.id)
         .maybeSingle();
       
       if (data && data.username) {
