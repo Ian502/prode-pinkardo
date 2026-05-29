@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trophy, Medal, User } from 'lucide-react';
+import { Trophy, Medal, Eye } from 'lucide-react';
 import { ComparativaModal } from './ComparativaModal'; //
 
 interface LeaderboardUser {
@@ -27,11 +27,64 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
   useEffect(() => {
     const calcularTablaPosiciones = async () => {
       try {
-        // ... (Tu lógica actual para traer partidos, predicciones y calcular puntos permanece exactamente igual) ...
-        // [Mantén el algoritmo de cálculo de puntos intacto aquí]
+        // 1. Traer partidos con resultados reales
+        const { data: partidos } = await supabase.from('partidos').select('*');
+        // 2. Traer todas las predicciones cargadas en el sistema
+        const { data: predicciones } = await supabase.from('prode').select('*');
+        // 3. Traer la lista de perfiles de usuarios (o deducirlos de las predicciones si usas auth puro)
+        const { data: profiles } = await supabase.from('prode').select('user_id'); 
+
+        if (!partidos || !predicciones) {
+          setLoading(false);
+          return;
+        }
+
+        // Obtener usuarios únicos
+        const usuariosUnicos = Array.from(new Set(predicciones.map(p => p.user_id)));
+
+        // Calcular puntajes por usuario
+        const ranking: LeaderboardUser[] = usuariosUnicos.map((uid) => {
+          let puntos = 0;
+          let exactos = 0;
+          let resultados = 0;
+
+          const misPreds = predicciones.filter(p => p.user_id === uid);
+
+          misPreds.forEach(p => {
+            const partido = partidos.find(part => part.id === p.partido_id);
+            if (partido && partido.goles_local !== null && partido.goles_visita !== null) {
+              const realL = partido.goles_local;
+              const realV = partido.goles_visita;
+              const predL = p.prediccion_local;
+              const predV = p.prediccion_visita;
+
+              // REGLA: Acierto Exacto (Pleno) -> 3 puntos
+              if (realL === predL && realV === predV) {
+                puntos += 3;
+                exactos++;
+              } 
+              // REGLA: Acierto de Ganador/Empate -> 1 punto
+              else if (Math.sign(realL - realV) === Math.sign(predL - predV)) {
+                puntos += 1;
+                resultados++;
+              }
+            }
+          });
+
+          // Buscamos una referencia de mail ficticia o placeholder si usas auth puro desde cliente
+          return {
+            user_id: uid,
+            email: uid.substring(0, 8) + "@torneo.com", // Puedes cambiarlo por el email real si tienes tabla de perfiles
+            puntos,
+            aciertos_exactos: exactos,
+            aciertos_resultado: resultados
+          };
+        });
+
+        // Ordenar de mayor a menor puntuación
+        ranking.sort((a, b) => b.puntos - a.puntos || b.aciertos_exactos - a.aciertos_exactos);
         
-        // Supongamos que tu variable de resultado final se llama 'ranking'
-        // setUsers(ranking);
+        setUsers(ranking); 
       } catch (e) {
         console.error(e);
       } finally {
