@@ -93,7 +93,7 @@ export default function ListaPartidos({ userId }: Props) {
 
       // Upsert: Inserta si no existe, actualiza si ya existe (gracias a la constraint del PK/Unique en DB)
       const { error } = await supabase
-        .from('predicciones')
+        .from('prode')
         .upsert(payloads, { onConflict: 'user_id,partido_id' });
 
       if (error) throw error;
