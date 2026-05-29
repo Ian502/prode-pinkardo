@@ -3,7 +3,8 @@ import { supabase } from './lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import Login from './pages/login';
 import ListaPartidos from './components/ListaPartidos';
-import { Leaderboard } from './components/Leaderboard'; 
+import { Leaderboard } from './components/Leaderboard';
+import { RegistroNombre } from './components/RegistroNombre'; // Importar el componente 
 import { LogOut, LayoutDashboard, Calendar, Trophy } from 'lucide-react';
 
 
@@ -11,6 +12,8 @@ export default function App() {
   const [sessionUser, setSessionUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [tabActiva, setTabActiva] = useState<'partidos' | 'posiciones'>('partidos'); // Estado del Tab
+  const [miApodo, setMiApodo] = useState<string | null>(null);
+  const [verificandoNombre, setVerificandoNombre] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -27,6 +30,33 @@ export default function App() {
 
   if (loading) return <div className="min-h-screen bg-slate-900 flex justify-center items-center text-white">Cargando...</div>;
   if (!sessionUser) return <Login />;
+  
+  useEffect(() => {
+  const verificarNombreExistente = async () => {
+    if (!sessionUser) return;
+    
+    // Verificamos si este usuario ya guardó algún nombre en la tabla
+    const { data } = await supabase
+      .from('predicciones')
+      .select('username')
+      .eq('user_id', sessionUser.id)
+      .not('username', 'is', null)
+      .limit(1);
+
+    if (data && data.length > 0) {
+      setMiApodo(data[0].username);
+    }
+    setVerificandoNombre(false);
+  };
+
+  verificarNombreExistente();
+  }, [sessionUser]);
+  
+  if (verificandoNombre) return <div className="text-center mt-20 text-slate-400">Cargando
+  
+  if (!miApodo) {
+  return <RegistroNombre userId={sessionUser.id} onNombreGuardado={(nombre) => setMiApodo(nombre)} />;
+ 
 
   // Si está logueado, mostrar el Dashboard del Prode
   return (

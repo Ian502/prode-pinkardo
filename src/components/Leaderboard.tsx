@@ -49,6 +49,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
           let resultados = 0;
 
           const misPreds = predicciones.filter(p => p.user_id === uid);
+		  
+		  const prediccionConNombre = misPreds.find(p => p.username !== null && p.username !== '');
+		  const apodoReal = prediccionConNombre ? prediccionConNombre.username : "Un Pibe";
 
           misPreds.forEach(p => {
             const partido = partidos.find(part => part.id === p.partido_id);
@@ -74,7 +77,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
           // Buscamos una referencia de mail ficticia o placeholder si usas auth puro desde cliente
           return {
             user_id: uid,
-            email: uid.substring(0, 8) + "@torneo.com", // Puedes cambiarlo por el email real si tienes tabla de perfiles
+            email: apodoReal, // Puedes cambiarlo por el email real si tienes tabla de perfiles
             puntos,
             aciertos_exactos: exactos,
             aciertos_resultado: resultados
