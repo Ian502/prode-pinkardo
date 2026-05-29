@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import Login from './pages/login';
-import Leaderboard from './components/Leaderboard'; // Nuevo Import
 import ListaPartidos from './components/ListaPartidos';
+import { Leaderboard } from './components/Leaderboard'; 
 import { LogOut, LayoutDashboard, Calendar, Trophy } from 'lucide-react';
 
 

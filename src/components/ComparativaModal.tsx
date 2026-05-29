@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from './lib/supabase';
-import { X, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { X } from 'lucide-react'; // cleaned
 
 interface ComparativaModalProps {
   isOpen: boolean;
@@ -41,7 +41,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
     const cargarComparativa = async () => {
       setLoading(true);
       try {
-        // 1. Traer todos los partidos con los nombres de sus equipos
         const { data: partidosData, error: pError } = await supabase
           .from('partidos')
           .select(`
@@ -53,7 +52,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
 
         if (pError) throw pError;
 
-        // 2. Traer las predicciones de ambos usuarios
         const { data: predsData, error: predError } = await supabase
           .from('predicciones')
           .select('*')
@@ -63,12 +61,11 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
 
         const ahora = new Date();
 
-        // 3. Cruzar la información en un solo objeto para la tabla
         const mapeo = (partidosData as any[]).map((partido) => {
-          const miPred = predsData?.find(p => p.partido_id === partido.id && p.user_id === currentUserId);
-          const otroPred = predsData?.find(p => p.partido_id === partido.id && p.user_id === targetUserId);
+          // Tipamos explícitamente el parámetro 'p' para evitar el error TS7006 de 'any' implícito
+          const miPred = predsData?.find((p: { partido_id: number; user_id: string }) => p.partido_id === partido.id && p.user_id === currentUserId);
+          const otroPred = predsData?.find((p: { partido_id: number; user_id: string }) => p.partido_id === partido.id && p.user_id === targetUserId);
           
-          // REGLA DE ORO: Si el partido NO empezó, la predicción del rival está oculta
           const partidoEmpezado = new Date(partido.fecha_limite) <= ahora;
 
           return {
@@ -102,9 +99,8 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl">
         
-        {/* Cabecera */}
         <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-850 rounded-t-2xl">
           <div>
             <h3 className="font-bold text-amber-500 text-lg">Comparando Pronósticos</h3>
@@ -115,7 +111,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
           </button>
         </div>
 
-        {/* Tabla / Lista de Comparación */}
         <div className="p-4 overflow-y-auto flex-1 space-y-3 bg-slate-900/50">
           {loading ? (
             <div className="text-center py-12 text-slate-400 text-sm animate-pulse">Analizando las jugadas...</div>
@@ -126,7 +121,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
               return (
                 <div key={p.partido_id} className="bg-slate-800 border border-slate-700/60 rounded-xl p-3 flex flex-col sm:flex-row justify-between items-center gap-3">
                   
-                  {/* Equipos */}
                   <div className="flex items-center space-x-3 w-full sm:w-2/5 justify-center sm:justify-start">
                     <div className="flex flex-col text-right items-end w-20">
                       <span className="text-xs font-semibold truncate max-w-[80px]">{p.local}</span>
@@ -139,9 +133,7 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Bloque de Comparación de Scores */}
                   <div className="flex items-center space-x-6 bg-slate-850/60 px-4 py-2 rounded-xl border border-slate-700/40 w-full sm:w-auto justify-center">
-                    {/* Mi predicción */}
                     <div className="text-center">
                       <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-medium">Tú</span>
                       <span className="text-sm font-bold text-slate-100">
@@ -149,7 +141,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
                       </span>
                     </div>
 
-                    {/* Resultado Real en el centro */}
                     <div className="text-center px-2 border-x border-slate-700">
                       <span className="block text-[10px] text-amber-500 uppercase tracking-wider font-bold">Real</span>
                       <span className="text-sm font-black text-amber-500">
@@ -157,7 +148,6 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
                       </span>
                     </div>
 
-                    {/* Predicción del rival */}
                     <div className="text-center">
                       <span className="block text-[10px] text-slate-400 uppercase tracking-wider font-medium">Rival</span>
                       <span className="text-sm font-bold text-slate-100">
