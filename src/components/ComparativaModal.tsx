@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from './lib/supabase';
 import { X, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ComparativaModalProps {
