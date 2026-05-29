@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Partido, Prode } from '../types/prode';
+import type { Partido, Prode } from '../types/prode';
 import { Calendar, Save, CheckCircle } from 'lucide-react';
 
 interface Props {
