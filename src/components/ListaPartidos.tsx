@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Partido, Prediccion } from '../types/prode';
+import { Partido, prode } from '../types/prode';
 import { Calendar, Save, CheckCircle } from 'lucide-react';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 
 export default function ListaPartidos({ userId }: Props) {
   const [partidos, setPartidos] = useState<Partido[]>([]);
-  const [predicciones, setPredicciones] = useState<Record<string, Prediccion>>({});
+  const [predicciones, setPredicciones] = useState<Record<string, prode>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -27,8 +27,8 @@ export default function ListaPartidos({ userId }: Props) {
         .from('partidos')
         .select(`
           id, fase, equipo_local_id, equipo_visita_id, goles_a, goles_b, fecha_limite,
-          equipos_local:equipo_local_id (id, nombre, bandera_url, grupo),
-          equipos_visita:equipo_visita_id (id, nombre, bandera_url, grupo)
+          equipo_a:equipo_local_id (id, nombre, bandera_url, grupo),
+          equipo_b:equipo_visita_id (id, nombre, bandera_url, grupo)
         `)
         .order('fecha_limite', { ascending: true });
 
@@ -42,14 +42,14 @@ export default function ListaPartidos({ userId }: Props) {
 
       if (errorPred) throw errorPred;
 
-      // 3. Mapear predicciones a un formato de diccionario { [partido_id]: prediccion }
-      const localPreds: Record<string, Prediccion> = {};
+      // 3. Mapear predicciones a un formato de diccionario { [partido_id]: prode }
+      const localPreds: Record<string, prode> = {};
       predData?.forEach((p) => {
         localPreds[p.partido_id] = {
           partid_id: p.partido_id,
           goles_a: p.goles_a ?? '',
           goles_b: p.goles_b ?? '',
-        } as unknown as Prediccion;
+        } as unknown as prode;
       });
 
       setPartidos(partidosData as unknown as Partido[]);
@@ -169,12 +169,12 @@ export default function ListaPartidos({ userId }: Props) {
                 {/* Equipo Local */}
                 <div className="flex items-center space-x-2 justify-end w-1/3">
                   <span className="text-sm font-semibold text-white text-right hidden sm:inline">
-                    {partido.equipos_local?.nombre}
+                    {partido.equipo_a?.nombre}
                   </span>
                   <span className="text-sm font-semibold text-white sm:hidden">
-                    {partido.equipos_local?.nombre.substring(0, 3).toUpperCase()}
+                    {partido.equipo_a?.nombre.substring(0, 3).toUpperCase()}
                   </span>
-                  <img src={partido.equipos_local?.bandera_url} alt="Local" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                  <img src={partido.equipo_a?.bandera_url} alt="Local" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
                 </div>
 
                 {/* Inputs de Goles */}
@@ -202,12 +202,12 @@ export default function ListaPartidos({ userId }: Props) {
 
                 {/* Equipo Visitante */}
                 <div className="flex items-center space-x-2 justify-start w-1/3">
-                  <img src={partido.equipos_visita?.bandera_url} alt="Visita" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                  <img src={partido.equipo_b?.bandera_url} alt="Visita" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
                   <span className="text-sm font-semibold text-white hidden sm:inline">
-                    {partido.equipos_visita?.nombre}
+                    {partido.equipo_b?.nombre}
                   </span>
                   <span className="text-sm font-semibold text-white sm:hidden">
-                    {partido.equipos_visita?.nombre.substring(0, 3).toUpperCase()}
+                    {partido.equipo_b?.nombre.substring(0, 3).toUpperCase()}
                   </span>
                 </div>
 

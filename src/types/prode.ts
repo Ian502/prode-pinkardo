@@ -18,7 +18,7 @@ export interface Partido {
   equipos_b: Equipo;
 }
 
-export interface Prediccion {
+export interface prode {
   partido_id: string;
   goles_a: number | string;
   goles_b: number | string;
