@@ -1,5 +1,6 @@
 export interface Equipo {
-  id: string;
+  id: int;
+  idc: string;
   nombre: string;
   grupo: string;
   bandera_url: string;
