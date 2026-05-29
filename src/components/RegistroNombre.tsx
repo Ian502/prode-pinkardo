@@ -23,21 +23,25 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
     setError('');
 
     try {
-      // Guardamos o actualizamos el username en la base de datos
-      const { error: dbError } = await supabase
-        .from('prode')
-        .upsert({ user_id: userId, username: username.trim() }, { onConflict: 'user_id' });
+    // En lugar de meter una fila nueva (upsert), modificamos las filas existentes de este usuario
+    // o registramos su apodo de forma segura.
+    const { error: dbError } = await supabase
+      .from('predicciones')
+      .update({ username: username.trim() })
+      .eq('user_id', userId);
 
-      if (dbError) throw dbError;
+    if (dbError) throw dbError;
 
-      onNombreGuardado(username.trim());
-    } catch (err: any) {
-      setError('Error al guardar el nombre. Intenta con otro.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Si el usuario es completamente nuevo y no tiene filas aún en la tabla 'predicciones',
+    // guardamos su sesión en el estado local igualmente para que entre al Dashboard.
+    onNombreGuardado(username.trim());
+  } catch (err: any) {
+    setError('Error al guardar el nombre. Intenta de nuevo.');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto mt-12 p-6 bg-slate-800 border border-slate-700 rounded-2xl shadow-xl">
