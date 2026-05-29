@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trophy, Medal, Eye } from 'lucide-react';
+import { Trophy, Eye } from 'lucide-react';
 import { ComparativaModal } from './ComparativaModal'; //
 
 interface LeaderboardUser {
@@ -32,7 +32,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
         // 2. Traer todas las predicciones cargadas en el sistema
         const { data: predicciones } = await supabase.from('prode').select('*');
         // 3. Traer la lista de perfiles de usuarios (o deducirlos de las predicciones si usas auth puro)
-        const { data: profiles } = await supabase.from('prode').select('user_id'); 
+        //const { data: profiles } = await supabase.from('prode').select('user_id'); 
 
         if (!partidos || !predicciones) {
           setLoading(false);
@@ -52,11 +52,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
 
           misPreds.forEach(p => {
             const partido = partidos.find(part => part.id === p.partido_id);
-            if (partido && partido.goles_local !== null && partido.goles_visita !== null) {
-              const realL = partido.goles_local;
-              const realV = partido.goles_visita;
-              const predL = p.prediccion_local;
-              const predV = p.prediccion_visita;
+            if (partido && partido.goles_a !== null && partido.goles_b !== null) {
+              const realL = partido.goles_a;
+              const realV = partido.goles_b;
+              const predL = p.goles_a;
+              const predV = p.goles_b;
 
               // REGLA: Acierto Exacto (Pleno) -> 3 puntos
               if (realL === predL && realV === predV) {
