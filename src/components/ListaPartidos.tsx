@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Partido, prode } from '../types/prode';
+import { Partido, Prode } from '../types/prode';
 import { Calendar, Save, CheckCircle } from 'lucide-react';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 
 export default function ListaPartidos({ userId }: Props) {
   const [partidos, setPartidos] = useState<Partido[]>([]);
-  const [predicciones, setPredicciones] = useState<Record<string, prode>>({});
+  const [predicciones, setPredicciones] = useState<Record<string, Prode>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -36,20 +36,20 @@ export default function ListaPartidos({ userId }: Props) {
 
       // 2. Traer las predicciones existentes de este usuario específico
       const { data: predData, error: errorPred } = await supabase
-        .from('predicciones')
+        .from('prode')
         .select('partido_id, goles_a, goles_b')
         .eq('user_id', userId);
 
       if (errorPred) throw errorPred;
 
-      // 3. Mapear predicciones a un formato de diccionario { [partido_id]: prode }
-      const localPreds: Record<string, prode> = {};
+      // 3. Mapear predicciones a un formato de diccionario { [partido_id]: prediccion }
+      const localPreds: Record<string, Prode> = {};
       predData?.forEach((p) => {
         localPreds[p.partido_id] = {
           partid_id: p.partido_id,
           goles_a: p.goles_a ?? '',
           goles_b: p.goles_b ?? '',
-        } as unknown as prode;
+        } as unknown as Prode;
       });
 
       setPartidos(partidosData as unknown as Partido[]);
