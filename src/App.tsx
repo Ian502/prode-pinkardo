@@ -26,7 +26,7 @@ useEffect(() => {
         setSessionUser(session.user);
         
         // Ir a buscar el apodo inmediatamente si hay usuario logueado
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('prode')
           .select('username')
           .eq('user_id', session.user.id)
