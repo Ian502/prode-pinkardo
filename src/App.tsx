@@ -52,7 +52,7 @@ export default function App() {
   verificarNombreExistente();
   }, [sessionUser]);
   
-  if (verificandoNombre) return <div className="text-center mt-20 text-slate-400">Cargando
+  if (verificandoNombre) return <div className="text-center mt-20 text-slate-400">Cargando perfil...</div>;
   
   if (!miApodo) {
   return <RegistroNombre userId={sessionUser.id} onNombreGuardado={(nombre) => setMiApodo(nombre)} />;
