@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@theme {
+  /* Reemplazamos 'slate' por la gama de grises neutros más profundos */
+  --color-slate-950: #0a0a0a; /* Fondo general */
+  --color-slate-900: #141414; /* Navbar */
+  --color-slate-800: #1f1f1f; /* Tarjetas */
+  --color-slate-750: #2d2d2d; /* Hover */
+  --color-slate-700: #3d223d; /* Bordes */
+  --color-slate-400: #a3a3a3; /* Textos secundarios */
+  --color-slate-300: #d422d4; /* Textos claros */
+}
