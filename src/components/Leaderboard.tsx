@@ -27,21 +27,20 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
   useEffect(() => {
     const calcularTablaPosiciones = async () => {
       try {
-        // 1. Traer partidos con resultados reales
-        const { data: partidos } = await supabase.from('partidos').select('*');
-        // 2. Traer todas las predicciones cargadas en el sistema
-        const { data: predicciones } = await supabase.from('prode').select('*');
-        // 3. Traer la lista de perfiles de usuarios (o deducirlos de las predicciones si usas auth puro)
-        const { data: profiles } = await supabase.from('perfiles').select('*')
+        const { data: partidosData } = await supabase.from('partidos').select('*');
+		const { data: prediccionesData } = await supabase.from('predicciones').select('*');
+		const { data: perfilesData } = await supabase.from('perfiles').select('id, username');
 
-        if (!partidos || !profiles) {
-          setUsers([]);
-          setLoading(false);
-          return;
-        }
-
-        // Obtener usuarios únicos
-        const usuariosUnicos = Array.from(new Set(predicciones.map(p => p.user_id)));
+        // Si no hay partidos o perfiles, frenamos de forma segura
+		if (!partidosData || !perfilesData) {
+		  setUsers([]);
+		  setLoading(false);
+		  return;
+		}
+		
+		const partidos = partidosData;
+		const perfiles = perfilesData;
+		const predicciones = prediccionesData || [];
 
         // Calcular puntajes por usuario
         const ranking: LeaderboardUser[] = usuariosUnicos.map((uid) => {
