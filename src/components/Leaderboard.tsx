@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trophy, Eye } from 'lucide-react';
+import { Trophy, Eye, Medal } from 'lucide-react';
 import { ComparativaModal } from './ComparativaModal'; //
 
 interface LeaderboardUser {
@@ -34,7 +34,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
         // 3. Traer la lista de perfiles de usuarios (o deducirlos de las predicciones si usas auth puro)
         const { data: profiles } = await supabase.from('perfiles').select('*')
 
-        if (!partidos || !perfiles) {
+        if (!partidos || !profiles) {
           setUsers([]);
           setLoading(false);
           return;
