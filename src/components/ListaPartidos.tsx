@@ -94,8 +94,8 @@ export default function ListaPartidos({ userId }: Props) {
       .map(([partidoId, p]) => ({
         user_id: userId,
         partido_id: Number(partidoId), // 👈 Aseguramos que el ID venga de la clave del objeto y sea número
-        prediccion_local: Number(p.goles_a),
-        prediccion_visita: Number(p.goles_b),
+        goles_a: Number(p.goles_a),
+        goles_b: Number(p.goles_b),
       }));
 
     if (payloads.length === 0) {
