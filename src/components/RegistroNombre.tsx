@@ -13,31 +13,38 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
   const [error, setError] = useState('');
 
   const guardarNombre = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username.trim().length < 3) {
-      setError('El nombre debe tener al menos 3 caracteres.');
-      return;
+  e.preventDefault();
+  
+  if (username.trim().length < 3) {
+    setError('El nombre debe tener al menos 3 caracteres.');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  try {
+    const { data, error: dbError } = await supabase
+      .from('perfiles')
+      .insert([
+        { id: userId, username: username.trim() }
+      ])
+      .select(); // Le pedimos que nos devuelva lo que insertó para verificar
+	  
+
+    if (dbError) {
+      // Si Supabase devuelve un error, lo lanzamos para que caiga en el catch
+      throw dbError;
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-    // En lugar de meter una fila nueva (upsert), modificamos las filas existentes de este usuario
-    // o registramos su apodo de forma segura.
-    const { error: dbError } = await supabase
-      .from('perfiles')
-      .update({ username: username.trim() })
-      .eq('id', userId);
-
-    if (dbError) throw dbError;
-
-    // Si el usuario es completamente nuevo y no tiene filas aún en la tabla 'predicciones',
-    // guardamos su sesión en el estado local igualmente para que entre al Dashboard.
+    console.log("¡Perfil creado con éxito en Supabase!", data);
     onNombreGuardado(username.trim());
+
   } catch (err: any) {
-    setError('Error al guardar el nombre. Intenta de nuevo.');
-    console.error(err);
+    console.error("Error completo capturado:", err);
+    
+    // Mostramos el mensaje exacto que nos da la base de datos para saber qué pasa
+    setError(err.message || 'Error al guardar el nombre. Intenta con otro.');
   } finally {
     setLoading(false);
   }
