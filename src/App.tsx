@@ -17,49 +17,70 @@ export default function App() {
 
 // 2. Tu useEffect principal debe controlar la sesión y el apodo de forma secuencial:
 useEffect(() => {
+  let montado = true;
+
   const inicializarApp = async () => {
+    // 🛡️ SUB-REGLA DE EMERGENCIA: Si en 2.5 segundos Supabase no respondió, destrabamos la pantalla
+    const timeoutEmergencia = setTimeout(() => {
+      if (montado) {
+        console.warn("⚠️ Supabase tardó demasiado. Destrabando entorno por emergencia.");
+        setLoading(false);
+        setVerificandoNombre(false);
+      }
+    }, 2500);
+
     try {
-      // Obtener sesión actual de Supabase
-      const { data: { session } } = await supabase.auth.getSession();
+      // 1. Obtener la sesión de forma directa y rápida
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
+      if (sessionError) throw sessionError;
+
+      const session = sessionData?.session;
+
       if (session?.user) {
         setSessionUser(session.user);
         
-        // Ir a buscar el apodo inmediatamente si hay usuario logueado
-        const { data } = await supabase
+        // 2. Buscar el perfil usando .select() tradicional en lugar de maybeSingle() para evitar cuelgues
+        const { data, error: perfilError } = await supabase
           .from('perfiles')
           .select('username')
-          .eq('id', session.user.id)
-          .maybeSingle();
+          .eq('id', session.user.id);
 
-        if (data && data.username) {
-          setMiApodo(data.username);
+        if (perfilError) {
+          console.error("Error al traer perfil, ignorando para no trabar:", perfilError);
+        }
+
+        // Si encontramos el registro y tiene un nombre válido
+        if (data && data.length > 0 && data[0].username) {
+          setMiApodo(data[0].username);
         }
       }
     } catch (err) {
-      console.error("Error al inicializar la sesión o el perfil:", err);
+      console.error("Error crítico en la inicialización:", err);
     } finally {
-      // Apagamos los loaders en orden
-      setLoading(false);
-      setVerificandoNombre(false);
+      if (montado) {
+        clearTimeout(timeoutEmergencia); // Cancelamos el contador de emergencia si todo salió bien
+        setLoading(false);
+        setVerificandoNombre(false);
+      }
     }
   };
 
   inicializarApp();
 
-  // Escuchar cambios de estado de autenticación (Login/Logout)
+  // Escuchador de cambios de sesión
   const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (!montado) return;
+    
     if (session?.user) {
       setSessionUser(session.user);
-      // Si el usuario cambia o se loguea, buscamos su nombre
       const { data } = await supabase
         .from('perfiles')
         .select('username')
-        .eq('id', session.user.id)
-        .maybeSingle();
+        .eq('id', session.user.id);
       
-      if (data && data.username) {
-        setMiApodo(data.username);
+      if (data && data.length > 0 && data[0].username) {
+        setMiApodo(data[0].username);
       }
     } else {
       setSessionUser(null);
@@ -69,7 +90,10 @@ useEffect(() => {
     setVerificandoNombre(false);
   });
 
-  return () => subscription.unsubscribe();
+  return () => {
+    montado = false;
+    subscription.unsubscribe();
+  };
 }, []);
 
 // ==========================================
