@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Trophy, Eye, Medal } from 'lucide-react';
-import { ComparativaModal } from './ComparativaModal'; //
+import { Trophy, Medal, Eye } from 'lucide-react'; 
+import { ComparativaModal } from './ComparativaModal';
 
 interface LeaderboardUser {
   user_id: string;
-  email: string;
+  email: string; // Usaremos esta propiedad para mapear el 'username'
   puntos: number;
   aciertos_exactos: number;
   aciertos_resultado: number;
 }
 
 interface LeaderboardProps {
-  currentUserId: string; // 
+  currentUserId: string;
 }
 
 export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
-  const [users, setUsers] = useState<LeaderboardUser[]>([]);
+  const [users, setUsers] = useState<LeaderboardUser[]>([]); 
   const [loading, setLoading] = useState(true);
 
-  // Estados para controlar el modal de comparación
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedUserEmail, setSelectedUserEmail] = useState('');
@@ -27,12 +26,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
   useEffect(() => {
     const calcularTablaPosiciones = async () => {
       try {
+        setLoading(true);
+        
         const { data: partidosData } = await supabase.from('partidos').select('*');
 		const { data: prediccionesData } = await supabase.from('predicciones').select('*');
 		const { data: perfilesData } = await supabase.from('perfiles').select('id, username');
 
-        // Si no hay partidos o perfiles, frenamos de forma segura
-		if (!partidosData || !perfilesData) {
+        if (!partidosData || !perfilesData) {
 		  setUsers([]);
 		  setLoading(false);
 		  return;
@@ -42,22 +42,22 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
 		const perfiles = perfilesData;
 		const predicciones = prediccionesData || [];
 
-        // Calcular puntajes por usuario
-        const ranking: LeaderboardUser[] = usuariosUnicos.map((uid) => {
+        // Generamos la tabla basándonos en los PERFILES existentes (así aparecen todos los registrados)
+        const ranking: LeaderboardUser[] = perfiles.map((perfil) => {
           let puntos = 0;
           let exactos = 0;
           let resultados = 0;
 
           // Filtramos las predicciones que pertenecen a este perfil en particular
-          const misPreds = predicciones ? predicciones.filter(p => p.user_id === perfil.id) : [];
-		  
-		  misPreds.forEach(p => {
+          const misPreds = predicciones.filter(p => p.user_id === perfil.id);
+
+          misPreds.forEach(p => {
             const partido = partidos.find(part => part.id === p.partido_id);
             if (partido && partido.goles_a !== null && partido.goles_b !== null) {
               const realL = partido.goles_a;
               const realV = partido.goles_b;
-              const predL = p.prediccion_a;
-              const predV = p.prediccion_b;
+              const predL = p.goles_a;
+              const predV = p.goles_b;
 
               // REGLA: Acierto Exacto (Pleno) -> 3 puntos
               if (realL === predL && realV === predV) {
@@ -72,29 +72,28 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
             }
           });
 
-          // Buscamos una referencia de mail ficticia o placeholder si usas auth puro desde cliente
           return {
-            user_id: uid,
-            email: perfil.username, // Puedes cambiarlo por el email real si tienes tabla de perfiles
+            user_id: perfil.id,
+            email: perfil.username, // 👈 Pasamos el username limpio obtenido de la tabla 'perfiles'
             puntos,
             aciertos_exactos: exactos,
             aciertos_resultado: resultados
           };
         });
 
-        // Ordenar de mayor a menor puntuación
+        // Ordenar de mayor a menor puntuación. Si hay empate, desempata quien tenga más plenos (exactos)
         ranking.sort((a, b) => b.puntos - a.puntos || b.aciertos_exactos - a.aciertos_exactos);
         
-        setUsers(ranking); 
+        setUsers(ranking);
       } catch (e) {
-        console.error(e);
+        console.error("Error al calcular el leaderboard con perfiles:", e);
       } finally {
         setLoading(false);
       }
     };
 
     calcularTablaPosiciones();
-  }, []);
+  }, [currentUserId]);
 
   const abrirComparador = (id: string, email: string) => {
     if (id === currentUserId) return;
