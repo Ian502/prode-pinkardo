@@ -28,7 +28,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
     const { error: dbError } = await supabase
       .from('perfiles')
       .update({ username: username.trim() })
-      .eq('user_id', userId);
+      .eq('id', userId);
 
     if (dbError) throw dbError;
 

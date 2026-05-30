@@ -44,16 +44,16 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
         const { data: partidosData, error: pError } = await supabase
           .from('partidos')
           .select(`
-            id, goles_local, goles_visita, fecha_limite,
-            local:equipo_local_id(nombre, bandera_url),
-            visita:equipo_visita_id(nombre, bandera_url)
+            id, goles_a, goles_b, fecha_limite,
+            local:equipos_a(nombre, bandera_url),
+            visita:equipos_b(nombre, bandera_url)
           `)
           .order('fecha_limite', { ascending: true });
 
         if (pError) throw pError;
 
         const { data: predsData, error: predError } = await supabase
-          .from('predicciones')
+          .from('prode')
           .select('*')
           .in('user_id', [currentUserId, targetUserId]);
 
@@ -74,13 +74,13 @@ export const ComparativaModal: React.FC<ComparativaModalProps> = ({
             visita: partido.visita.nombre,
             bandera_local: partido.local.bandera_url,
             bandera_visita: partido.visita.bandera_url,
-            goles_real_local: partido.goles_local,
-            goles_real_visita: partido.goles_visita,
+            goles_real_local: partido.goles_a,
+            goles_real_visita: partido.goles_b,
             fecha_limite: partido.fecha_limite,
-            goles_yo_local: miPred?.prediccion_local,
-            goles_yo_visita: miPred?.prediccion_visita,
-            goles_otro_local: partidoEmpezado ? otroPred?.prediccion_local : undefined,
-            goles_otro_visita: partidoEmpezado ? otroPred?.prediccion_visita : undefined,
+            goles_yo_local: miPred?.goles_a,
+            goles_yo_visita: miPred?.goles_b,
+            goles_otro_local: partidoEmpezado ? otroPred?.goles_a : undefined,
+            goles_otro_visita: partidoEmpezado ? otroPred?.goles_b : undefined,
           };
         });
 
