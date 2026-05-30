@@ -32,7 +32,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ currentUserId }) => {
 		const { data: prediccionesData } = await supabase.from('predicciones').select('*');
 		const { data: perfilesData } = await supabase.from('perfiles').select('id, username');
 
-        if (!partidosData || !perfilesData) {
+        if (!perfilesData|| !partidosData  ) {
 		  setUsers([]);
 		  setLoading(false);
 		  return;

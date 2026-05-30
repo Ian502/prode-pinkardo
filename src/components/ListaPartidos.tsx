@@ -79,34 +79,46 @@ export default function ListaPartidos({ userId }: Props) {
     setSaving(true);
     setSuccessMsg('');
     try {
-      // Filtrar predicciones que tengan ambos campos completos
-      const payloads = Object.values(predicciones)
-        .filter((p) => p.goles_a !== '' && p.goles_b !== '')
-        .map((p) => ({
-          user_id: userId,
-          partido_id: Number(p.partido_id),
-          goles_a: Number(p.goles_a),
-          goles_b: Number(p.goles_b),
-        }));
+    // Convertimos el objeto de predicciones en un arreglo para Supabase
+    const payloads = Object.entries(predicciones)
+      .filter(([partidoId, p]) => {
+        // SOLUCIÓN 1: Solo guardamos si el partidoId es válido y el usuario llenó ambos casilleros
+        return (
+          partidoId && 
+          partidoId !== 'undefined' && 
+          partidoId !== 'null' &&
+          p.goles_a !== '' && 
+          p.goles_b !== ''
+        );
+      })
+      .map(([partidoId, p]) => ({
+        user_id: userId,
+        partido_id: Number(partidoId), // 👈 Aseguramos que el ID venga de la clave del objeto y sea número
+        prediccion_local: Number(p.goles_a),
+        prediccion_visita: Number(p.goles_b),
+      }));
 
-      if (payloads.length === 0) return;
-
-      // Upsert: Inserta si no existe, actualiza si ya existe (gracias a la constraint del PK/Unique en DB)
-      const { error } = await supabase
-        .from('prode')
-        .upsert(payloads, { onConflict: 'user_id,partido_id' });
-
-      if (error) throw error;
-
-      setSuccessMsg('¡Pronósticos guardados con éxito!');
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (e) {
-      console.error('Error al guardar:', e);
-      alert('Hubo un error al guardar tus predicciones.');
-    } finally {
+    if (payloads.length === 0) {
       setSaving(false);
+      return;
     }
-  };
+
+    // Enviamos a Supabase
+    const { error } = await supabase
+      .from('prode')
+      .upsert(payloads, { onConflict: 'user_id,partido_id' });
+
+    if (error) throw error;
+
+    setSuccessMsg('¡Pronósticos guardados con éxito!');
+    setTimeout(() => setSuccessMsg(''), 4000);
+  } catch (e) {
+    console.error('Error al guardar en Supabase:', e);
+    alert('Hubo un error al guardar tus predicciones. Revisa la consola.');
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading) return <div className="text-center text-slate-400 mt-10">Cargando partidos...</div>;
 
