@@ -26,7 +26,7 @@ export const RegistroNombre: React.FC<RegistroNombreProps> = ({ userId, onNombre
     // En lugar de meter una fila nueva (upsert), modificamos las filas existentes de este usuario
     // o registramos su apodo de forma segura.
     const { error: dbError } = await supabase
-      .from('prode')
+      .from('perfiles')
       .update({ username: username.trim() })
       .eq('user_id', userId);
 
